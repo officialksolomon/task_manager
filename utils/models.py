@@ -36,6 +36,7 @@ class NamedTimeBasedModel(TimeBasedModel):
         return self.name
 
 
+
 class CategoryModel(TimeBasedModel):
     name = models.CharField(max_length=60, unique=True)
     slug = models.SlugField(null=True, blank=True, max_length=250)

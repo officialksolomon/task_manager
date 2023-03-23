@@ -1,42 +1,74 @@
 import auto_prefetch
 from django.db import models
 
-from utils.models import NamedTimeBasedModel, TimeBasedModel
+from utils.models import (
+    NamedTimeBasedModel,
+    TimeBasedModel,
+)
+
+from utils.choices import TaskStatus  # type: ignore
 
 
 class Task(NamedTimeBasedModel):
     description = models.CharField(max_length=150)
-    status = auto_prefetch.ForeignKey(
-        "accounts.TaskStatus", related_name="tasks", on_delete=models.CASCADE
+    board = auto_prefetch.ForeignKey(
+        "task.TaskBoard",
+        related_name="board_tasks",
+        on_delete=models.CASCADE,
     )
+    priority = auto_prefetch.ForeignKey(
+        "task.TaskPriority",
+        related_name="priority_task",
+        on_delete=models.CASCADE,
+    )
+    status = models.CharField(max_length=50, choices=TaskStatus.choices)  # type: ignore
+    assigned_to = auto_prefetch.ForeignKey(
+        "accounts.CustomUser",
+        related_name="assigned_tasks",
+        on_delete=models.CASCADE,
+    )
+
     category = auto_prefetch.ForeignKey(
-        "accounts.TaskCategory", related_name="tasks", on_delete=models.CASCADE
+        "task.TaskCategory",
+        related_name="category_tasks",
+        on_delete=models.CASCADE,
     )
     due_date = models.DateField()
-    comments = models.CharField(max_length=150)
-    assigned_to = auto_prefetch.ForeignKey(
-        "accounts.CustomUser", related_name="tasks", on_delete=models.CASCADE
-    )
     created_by = auto_prefetch.ForeignKey(
-        "accounts.CustomUser", related_name="tasks", on_delete=models.CASCADE
-    )
-    modified_by = auto_prefetch.ForeignKey(
-        "accounts.CustomUser", on_delete=models.CASCADE
+        "accounts.CustomUser",
+        related_name="user_tasks",
+        on_delete=models.CASCADE,
     )
 
 
-class TaskStatus(NamedTimeBasedModel):
-    class Meta:
-        verbose_name_plural = "Task Statuses"
+class TaskBoard(NamedTimeBasedModel):
+    description = models.CharField(max_length=150)
+    created_by = auto_prefetch.ForeignKey(
+        "accounts.CustomUser",
+        related_name="user_boards",
+        on_delete=models.CASCADE,
+    )
+
+
+class TaskPriority(NamedTimeBasedModel):
+    level = models.PositiveIntegerField()
+
+    class Meta(auto_prefetch.Model.Meta):
+        verbose_name_plural = "Task Priorities"
+
+    def __str__(self):
+        return self.name
 
 
 class TaskCategory(NamedTimeBasedModel):
-    class Meta:
+    class Meta(auto_prefetch.Model.Meta):
         verbose_name_plural = "Task Categories"
 
 
-class TaskComments(TimeBasedModel):
+class TaskComment(TimeBasedModel):
+    task = auto_prefetch.ForeignKey(
+        "task.Task",
+        related_name="comments",
+        on_delete=models.CASCADE,
+    )
     content = models.CharField(max_length=50)
-
-    class Meta:
-        verbose_name_plural = "Task Comments"
