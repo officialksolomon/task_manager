@@ -21,6 +21,11 @@ class Task(NamedTimeBasedModel):
         related_name="priority_task",
         on_delete=models.CASCADE,
     )
+    team = auto_prefetch.ForeignKey(
+        "team.Team",
+        related_name="team_tasks",
+        on_delete=models.CASCADE,
+    )
     status = models.CharField(max_length=50, choices=TaskStatus.choices)  # type: ignore
     assigned_to = auto_prefetch.ForeignKey(
         "accounts.CustomUser",
