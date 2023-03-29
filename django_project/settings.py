@@ -35,6 +35,8 @@ INSTALLED_APPS = [
     "pages",
     "task",
     "team",
+    "notifications",
+    "reminders",
 ]
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#middleware
