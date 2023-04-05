@@ -1,5 +1,6 @@
 import auto_prefetch
 from django.db import models
+from django.forms import NullBooleanField
 
 from utils.models import (
     NamedTimeBasedModel,
@@ -15,6 +16,8 @@ class Task(NamedTimeBasedModel):
         "task.TaskBoard",
         related_name="board_tasks",
         on_delete=models.CASCADE,
+        blank=True,
+        null=True
     )
     priority = auto_prefetch.ForeignKey(
         "task.TaskPriority",
@@ -25,8 +28,9 @@ class Task(NamedTimeBasedModel):
         "team.Team",
         related_name="team_tasks",
         on_delete=models.CASCADE,
+        blank=True
     )
-    status = models.CharField(max_length=50, choices=TaskStatus.choices)  # type: ignore
+    status = models.CharField(max_length=50, choices=TaskStatus.choices, default=TaskStatus.in_progress)  # type: ignore
     assigned_to = auto_prefetch.ForeignKey(
         "accounts.CustomUser",
         related_name="assigned_tasks",
@@ -37,6 +41,7 @@ class Task(NamedTimeBasedModel):
         "task.TaskCategory",
         related_name="category_tasks",
         on_delete=models.CASCADE,
+        blank=True
     )
     due_date = models.DateField()
     created_by = auto_prefetch.ForeignKey(
